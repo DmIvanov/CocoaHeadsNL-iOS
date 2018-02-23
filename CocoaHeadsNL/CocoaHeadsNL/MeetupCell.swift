@@ -62,12 +62,12 @@ class MeetupCell: UITableViewCell {
                 calendarView.backgroundColor = meetup.isToday ? UIColorWithRGB(127, green: 214, blue: 33) : UIColorWithRGB(232, green: 88, blue: 80)
 
 
-                if meetup.yes_rsvp_count.int32Value > 0{
+                if meetup.yesRsvpCount > 0{
 
-                    rsvpLabel.text = "\(meetup.yes_rsvp_count.int32Value) " + NSLocalizedString("CocoaHeads going")
+                    rsvpLabel.text = "\(meetup.yesRsvpCount) " + NSLocalizedString("CocoaHeads going")
 
-                    if meetup.rsvp_limit.int32Value > 0 {
-                        let text = rsvpLabel.text! + "\n\(meetup.rsvp_limit.int32Value - meetup.yes_rsvp_count.int32Value) "
+                    if meetup.rsvpLimit > 0 {
+                        let text = rsvpLabel.text! + "\n\(meetup.rsvpLimit - meetup.yesRsvpCount) "
                         rsvpLabel.text = text + NSLocalizedString("seats available")
                     }
                 } else {
@@ -77,7 +77,7 @@ class MeetupCell: UITableViewCell {
                 dayLabel.textColor = UIColor(white: 0, alpha: 0.65)
                 calendarView.backgroundColor = UIColorWithRGB(169, green: 166, blue: 166)
 
-                rsvpLabel.text = "\(meetup.yes_rsvp_count.int32Value) \(NSLocalizedString("CocoaHeads had a blast"))"
+                rsvpLabel.text = "\(meetup.yesRsvpCount) \(NSLocalizedString("CocoaHeads had a blast"))"
             }
         }
 

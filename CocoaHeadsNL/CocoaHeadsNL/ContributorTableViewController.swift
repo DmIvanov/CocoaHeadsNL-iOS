@@ -10,19 +10,12 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
-import RealmSwift
 
 class ContributorTableViewController: UITableViewController {
-
-    lazy var realm = {
-        try! Realm()
-    }()
 
     lazy var contributors = {
         try! Realm().objects(Contributor.self).sorted(byKeyPath: "commit_count", ascending: false)
     }()
-    
-    var notificationToken: NotificationToken?
 
     //MARK: - View LifeCycle
 

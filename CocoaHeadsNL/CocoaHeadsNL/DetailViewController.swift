@@ -128,7 +128,7 @@ class DetailViewController: UITableViewController, SKStoreProductViewControllerD
     override var previewActionItems : [UIPreviewActionItem] {
         let shareAction = UIPreviewAction(title: NSLocalizedString("Share"), style: .default) { (previewAction, viewController) in
 
-            if let meetup = self.dataSource.object as? Meetup, let meetupId = meetup.meetup_id {
+            if let meetup = self.dataSource.object as? Meetup, let meetupId = meetup.meetupId {
                 let string: String = "http://www.meetup.com/CocoaHeadsNL/events/\(meetupId)/"
                 let URL: Foundation.URL = Foundation.URL(string: string)!
 
@@ -143,7 +143,7 @@ class DetailViewController: UITableViewController, SKStoreProductViewControllerD
 
         let rsvpAction = UIPreviewAction(title: NSLocalizedString("RSVP"), style: .default) { (previewAction, viewController) in
 
-             if let meetup = self.dataSource.object as? Meetup, let meetupId = meetup.meetup_id {
+            if let meetup = self.dataSource.object as? Meetup, let meetupId = meetup.meetupId {
                 if let URL = URL(string: "http://www.meetup.com/CocoaHeadsNL/events/\(meetupId)/") {
                     UIApplication.shared.open(URL, options: [:], completionHandler: { (true) in
                     })

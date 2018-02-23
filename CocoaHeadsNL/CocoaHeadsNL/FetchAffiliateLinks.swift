@@ -19,7 +19,7 @@ class FetchAffiliateLinks {
             var affiliateLinks = [AffiliateLink]()
 
             operation.recordFetchedBlock = { (record) in
-                let affLink = AffiliateLink(record: record)
+                let affLink = AffiliateLink.affiliateLink(forRecord: record)
                 affiliateLinks.append(affLink)
             }
 

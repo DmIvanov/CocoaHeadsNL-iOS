@@ -10,18 +10,13 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
-import RealmSwift
 
 class LocatedCompaniesViewController: UITableViewController {
-    
-    lazy var realm = {
-        try! Realm()
-    }()
-    
-    lazy var companiesArray = {
-        try! Realm().objects(Company.self).sorted(byKeyPath: "name")
-    }()
-    
+
+//    lazy var companiesArray = {
+//        try! Realm().objects(Company.self).sorted(byKeyPath: "name")
+//    }()
+
     var placesArray: [String] {
         get {
             var places = Set<String>()
@@ -31,7 +26,6 @@ class LocatedCompaniesViewController: UITableViewController {
     }
 
     var sortedByPlace = [String: [Company]]()
-    var notificationToken: NotificationToken?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)

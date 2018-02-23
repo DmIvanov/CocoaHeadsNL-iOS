@@ -10,7 +10,6 @@ import UIKit
 import CoreSpotlight
 import MobileCoreServices
 import CloudKit
-import RealmSwift
 
 let indexQueue = OperationQueue()
 
@@ -18,24 +17,26 @@ var jobsIndexBackgroundTaskID = UIBackgroundTaskInvalid
 var meetupsIndexBackgroundTaskID = UIBackgroundTaskInvalid
 
 
-class AffiliateLink {
-    let recordID: CKRecordID
-    let affiliateId: String?
-    let productCreator: String?
-    let productName: String?
-    let company: CKReference?
+extension AffiliateLink {
+//    let recordID: CKRecordID
+//    let affiliateId: String?
+//    let productCreator: String?
+//    let productName: String?
+//    let company: CKReference?
 
-    init(record: CKRecord) {
-        self.recordID = record.recordID
-        self.affiliateId = record["affiliateId"] as? String
-        self.productName = record["productName"] as? String
-        self.productCreator = record["productCreator"] as? String
-        self.company = record["company"] as? CKReference
+    static func affiliateLink(forRecord record: CKRecord) -> AffiliateLink {
+        let newAffiliateLink = AffiliateLink()
+        //        self.recordID = record.recordID
+        //        self.affiliateId = record["affiliateId"] as? String
+        //        self.productName = record["productName"] as? String
+        //        self.productCreator = record["productCreator"] as? String
+        //        self.company = record["company"] as? CKReference
 
+        return newAffiliateLink
     }
 }
 
-class Company: Object {
+extension Company {
 
     static func company(forRecord record: CKRecord) -> Company {
         let newCompany = Company()
@@ -49,7 +50,6 @@ class Company: Object {
         newCompany.emailAddress = record["emailAddress"] as? String
         newCompany.latitude = (record["location"] as? CLLocation)?.coordinate.latitude ?? 0.0
         newCompany.longitude = (record["location"] as? CLLocation)?.coordinate.longitude ?? 0.0
-        newCompany.hasApps = record["hasApps"] as? Bool ?? false
 
         if let logoAsset = record["logo"] as? CKAsset {
             newCompany.logo = try? Data(contentsOf: logoAsset.fileURL)
@@ -60,83 +60,51 @@ class Company: Object {
 
         return newCompany
     }
-    
-    override static func primaryKey() -> String? {
-        return "recordName"
-    }
 
-    @objc dynamic var recordName: String?
-    @objc dynamic var name: String?
-    @objc dynamic var place: String?
-    @objc dynamic var streetAddress: String?
-    @objc dynamic var website: String?
-    @objc dynamic var zipCode: String?
-    @objc dynamic var companyDescription: String?
-    @objc dynamic var emailAddress: String?
-    @objc dynamic var latitude: CLLocationDegrees = 0.0
-    @objc dynamic var longitude: CLLocationDegrees = 0.0
-    @objc dynamic var logo: Data?
-    @objc dynamic var hasApps: Bool = false
-    @objc dynamic var smallLogo: Data?
-    
-    override static func ignoredProperties() -> [String] {
-        return ["logoImage", "smallLogoImage"]
-    }
-
-    lazy var logoImage: UIImage = {
-        if let logo = self.logo, let image = UIImage(data:logo) {
+    var logoImage: UIImage {
+        if let logo = self.logo, let image = UIImage(data:logo as Data) {
             return image
         } else {
             return UIImage(named: "CocoaHeadsNLLogo")!
         }
-    }()
+    }
 
-    lazy var smallLogoImage: UIImage = {
-        if let logo = self.smallLogo, let image = UIImage(data:logo) {
+    var smallLogoImage: UIImage {
+        if let logo = self.smallLogo, let image = UIImage(data:logo as Data) {
             return image
         } else {
             return UIImage(named: "CocoaHeadsNLLogo")!
         }
-    }()
+    }
 }
 
-class Contributor: Object {
+extension Contributor {
     static func contributor(forRecord record: CKRecord) -> Contributor {
         let contributor = Contributor()
         contributor.recordName = record.recordID.recordName
         contributor.name = record["name"] as? String ?? ""
         contributor.url = record["url"] as? String ?? ""
-        contributor.avatar_url = record["avatar_url"] as? String ?? ""
-        contributor.contributor_id = record["contributor_id"] as? Int64 ?? 0
-        contributor.commit_count = record["commit_count"] as? Int ?? 0
+        contributor.avatarUrl = record["avatar_url"] as? String ?? ""
+        contributor.contributorId = record["contributor_id"] as? Int64 ?? 0
+        contributor.commitCount = Int32(record["commit_count"] as? Int ?? 0)
         return contributor
     }
 
-    override static func primaryKey() -> String? {
-        return "recordName"
-    }
-
-    @objc dynamic var recordName: String?
-    @objc dynamic var avatar_url: String?
-    @objc dynamic var contributor_id: Int64 = 0
-    @objc dynamic var commit_count: Int = 0
-    @objc dynamic var name: String?
-    @objc dynamic var url: String?
 }
 
-class Job: Object {
+extension Job {
     static func job(forRecord record: CKRecord) -> Job {
         let job = Job()
-        
+
         job.recordName = record.recordID.recordName
         job.content = record["content"] as? String ?? ""
         job.date = record["date"] as? Date ?? Date()
         job.link = record["link"] as? String ?? ""
         job.title = record["title"] as? String ?? ""
         job.logoUrlString = record["logoUrl"] as? String
-        
+
         if let logoURLString = job.logoUrlString, let logoURL = URL(string: logoURLString), let data = try? Data(contentsOf: logoURL) {
-            job.logo = data
+            job.logo = data as NSData
         }
 
         if let companyName = record["author"] as? String, companyName.count > 0 {
@@ -147,36 +115,19 @@ class Job: Object {
         return job
     }
 
-    override static func primaryKey() -> String? {
-        return "recordName"
-    }
-    
-    @objc dynamic var recordName: String?
-    @objc dynamic var content: String = ""
-    @objc dynamic var date: Date?
-    @objc dynamic var link: String = ""
-    @objc dynamic var title: String = ""
-    @objc dynamic var logoUrlString: String?
-    @objc dynamic var logo: Data?
-    @objc dynamic var companyName: String?
-
-    override static func ignoredProperties() -> [String] {
-        return ["logoImage"]
-    }
-    
-    lazy var logoImage: UIImage = {
-        if let logo = self.logo, let image = UIImage(data:logo) {
+    var logoImage: UIImage {
+        if let logo = self.logo, let image = UIImage(data:logo as Data) {
             return image
         } else {
             return UIImage(named: "CocoaHeadsNLLogo")!
         }
-    }()
+    }
 
     var searchableAttributeSet: CSSearchableItemAttributeSet {
         get {
             let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeImage as String)
             attributeSet.title = title
-            if let data = content.data(using: String.Encoding.utf8) {
+            if let data = content?.data(using: String.Encoding.utf8) {
                 do {
                     let jobDescriptionString = try NSAttributedString(data: data, options:[NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf8], documentAttributes:nil)
 
@@ -230,14 +181,14 @@ class Job: Object {
     }
 }
 
-class Meetup: Object {
+extension Meetup {
 
     static func meetup(forRecord record: CKRecord) -> Meetup {
         let meetup = Meetup()
         meetup.recordName = (record.recordID as CKRecordID?)?.recordName
         meetup.name = record["name"] as? String ?? ""
-        meetup.meetup_id = record["meetup_id"] as? String
-        meetup.meetup_description = record["meetup_description"] as? String ?? ""
+        meetup.meetupId = record["meetup_id"] as? String
+        meetup.meetupDescription = record["meetup_description"] as? String ?? ""
         meetup.latitude = (record["geoLocation"] as? CLLocation)?.coordinate.latitude ?? 0.0
         meetup.longitude = (record["geoLocation"] as? CLLocation)?.coordinate.longitude ?? 0.0
         meetup.location = record["location"] as? String ?? ""
@@ -245,61 +196,38 @@ class Meetup: Object {
         meetup.time = record["time"] as? Date
         meetup.nextEvent = record["nextEvent"] as? Bool ?? false
 
-        meetup.duration = record.object(forKey: "duration") as? NSNumber ?? 0
-        meetup.rsvp_limit = record.object(forKey: "rsvp_limit") as? NSNumber ?? 0
-        meetup.yes_rsvp_count = record.object(forKey: "yes_rsvp_count") as? NSNumber ?? 0
+        meetup.year = Int32(Calendar.current.component(.year, from: meetup.time ?? Date()))
+
+        meetup.duration = Int32(record.object(forKey: "duration") as? NSNumber ?? 0)
+        meetup.rsvpLimit = Int32(record.object(forKey: "rsvp_limit") as? NSNumber ?? 0)
+        meetup.yesRsvpCount = Int32(record.object(forKey: "yes_rsvp_count") as? NSNumber ?? 0)
         meetup.meetupUrl = record.object(forKey: "meetup_url") as? String
-        
+
         if let logoAsset = record["logo"] as? CKAsset {
             meetup.logo = try? Data(contentsOf: logoAsset.fileURL)
         }
         if let logoAsset = record["smallLogo"] as? CKAsset {
             meetup.smallLogo = try? Data(contentsOf: logoAsset.fileURL)
         }
-        
+
         return meetup
     }
 
-    override static func primaryKey() -> String? {
-        return "recordName"
-    }
-
-    @objc dynamic var recordName: String?
-    @objc dynamic var duration: NSNumber = 0
-    @objc dynamic var latitude: CLLocationDegrees = 0.0
-    @objc dynamic var longitude: CLLocationDegrees = 0.0
-    @objc dynamic var locationName: String?
-    @objc dynamic var meetup_description: String?
-    @objc dynamic var meetup_id: String?
-    @objc dynamic var name: String?
-    @objc dynamic var rsvp_limit: NSNumber = 0
-    @objc dynamic var time: Date?
-    @objc dynamic var yes_rsvp_count: NSNumber = 0
-    @objc dynamic var logo: Data?
-    @objc dynamic var nextEvent: Bool = false
-    @objc dynamic var smallLogo: Data?
-    @objc dynamic var location: String?
-    @objc dynamic var meetupUrl: String?
-    
-    override static func ignoredProperties() -> [String] {
-        return ["logoImage", "smallLogoImage", "searchableAttributeSet"]
-    }
-
-    lazy var logoImage: UIImage = {
-        if let logo = self.logo, let image = UIImage(data:logo) {
+    var logoImage: UIImage {
+        if let logo = self.logo, let image = UIImage(data:logo as Data) {
             return image
         } else {
             return UIImage(named: "CocoaHeadsNLLogo")!
         }
-    }()
-    
-    lazy var smallLogoImage: UIImage = {
-        if let logo = self.smallLogo, let image = UIImage(data:logo) {
+    }
+
+    var smallLogoImage: UIImage {
+        if let logo = self.smallLogo, let image = UIImage(data:logo as Data) {
             return image
         } else {
             return UIImage(named: "CocoaHeadsNLLogo")!
         }
-    }()
+    }
 
     var isToday: Bool {
         guard let time = time else { return false }
@@ -319,7 +247,7 @@ class Meetup: Object {
         get {
             let attributeSet = CSSearchableItemAttributeSet(itemContentType: kUTTypeImage as String)
             attributeSet.title = name
-            if let data = meetup_description?.data(using: String.Encoding.utf8) {
+            if let data = meetupDescription?.data(using: String.Encoding.utf8) {
                 do {
                     let meetupDescriptionString = try NSAttributedString(data: data, options:[NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html, NSAttributedString.DocumentReadingOptionKey.characterEncoding: String.Encoding.utf8], documentAttributes:nil)
 
@@ -333,7 +261,7 @@ class Meetup: Object {
             if let locationName = locationName {
                keywords.append(locationName)
             }
-            
+
             if let location = location {
                 keywords.append(location)
             }

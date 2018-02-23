@@ -10,13 +10,8 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
-import RealmSwift
 
 class JobsViewController: UICollectionViewController {
-
-    lazy var realm = {
-        try! Realm()
-    }()
 
     lazy var jobsArray = {
         try! Realm().objects(Job.self).sorted(byKeyPath: "date", ascending: false)
@@ -25,7 +20,6 @@ class JobsViewController: UICollectionViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 
     var searchedObjectId: String? = nil
-    var notificationToken: NotificationToken?
 
     override func viewDidLoad() {
         super.viewDidLoad()
