@@ -10,6 +10,7 @@ import UIKit
 import CoreSpotlight
 import MobileCoreServices
 import CloudKit
+import BNRCoreDataStack
 
 let indexQueue = OperationQueue()
 
@@ -24,8 +25,8 @@ extension AffiliateLink {
 //    let productName: String?
 //    let company: CKReference?
 
-    static func affiliateLink(forRecord record: CKRecord) -> AffiliateLink {
-        let newAffiliateLink = AffiliateLink()
+    static func affiliateLink(forRecord record: CKRecord, on context: NSManagedObjectContext) -> AffiliateLink {
+        let newAffiliateLink = AffiliateLink(context: context)
         //        self.recordID = record.recordID
         //        self.affiliateId = record["affiliateId"] as? String
         //        self.productName = record["productName"] as? String
@@ -38,8 +39,8 @@ extension AffiliateLink {
 
 extension Company {
 
-    static func company(forRecord record: CKRecord) -> Company {
-        let newCompany = Company()
+    static func company(forRecord record: CKRecord, on context: NSManagedObjectContext) -> Company {
+        let newCompany = Company(context: context)
         newCompany.recordName = (record.recordID as CKRecordID?)?.recordName
         newCompany.name = record["name"] as? String
         newCompany.place = record["place"] as? String
@@ -52,10 +53,10 @@ extension Company {
         newCompany.longitude = (record["location"] as? CLLocation)?.coordinate.longitude ?? 0.0
 
         if let logoAsset = record["logo"] as? CKAsset {
-            newCompany.logo = try? Data(contentsOf: logoAsset.fileURL)
+            newCompany.logo = try? NSData(contentsOf: logoAsset.fileURL)
         }
         if let logoAsset = record["smallLogo"] as? CKAsset {
-            newCompany.smallLogo = try? Data(contentsOf: logoAsset.fileURL)
+            newCompany.smallLogo = try? NSData(contentsOf: logoAsset.fileURL)
         }
 
         return newCompany
@@ -79,8 +80,8 @@ extension Company {
 }
 
 extension Contributor {
-    static func contributor(forRecord record: CKRecord) -> Contributor {
-        let contributor = Contributor()
+    static func contributor(forRecord record: CKRecord, on context: NSManagedObjectContext) -> Contributor {
+        let contributor = Contributor(context: context)
         contributor.recordName = record.recordID.recordName
         contributor.name = record["name"] as? String ?? ""
         contributor.url = record["url"] as? String ?? ""
@@ -93,8 +94,8 @@ extension Contributor {
 }
 
 extension Job {
-    static func job(forRecord record: CKRecord) -> Job {
-        let job = Job()
+    static func job(forRecord record: CKRecord, on context: NSManagedObjectContext) -> Job {
+        let job = Job(context: context)
 
         job.recordName = record.recordID.recordName
         job.content = record["content"] as? String ?? ""
@@ -183,8 +184,8 @@ extension Job {
 
 extension Meetup {
 
-    static func meetup(forRecord record: CKRecord) -> Meetup {
-        let meetup = Meetup()
+    static func meetup(forRecord record: CKRecord, on context: NSManagedObjectContext) -> Meetup {
+        let meetup = Meetup(context: context)
         meetup.recordName = (record.recordID as CKRecordID?)?.recordName
         meetup.name = record["name"] as? String ?? ""
         meetup.meetupId = record["meetup_id"] as? String
@@ -204,10 +205,10 @@ extension Meetup {
         meetup.meetupUrl = record.object(forKey: "meetup_url") as? String
 
         if let logoAsset = record["logo"] as? CKAsset {
-            meetup.logo = try? Data(contentsOf: logoAsset.fileURL)
+            meetup.logo = try? NSData(contentsOf: logoAsset.fileURL)
         }
         if let logoAsset = record["smallLogo"] as? CKAsset {
-            meetup.smallLogo = try? Data(contentsOf: logoAsset.fileURL)
+            meetup.smallLogo = try? NSData(contentsOf: logoAsset.fileURL)
         }
 
         return meetup

@@ -63,7 +63,7 @@ class DetailViewController: UITableViewController, SKStoreProductViewControllerD
             }
         } else if let jobsDataSource = dataSource as? JobDataSource {
             title = jobsDataSource.job.title
-            url = URL(string: jobsDataSource.job.link)
+            url = URL(string: jobsDataSource.job.link!)
             activityType = "nl.cocoaheads.app.job"
         } else if let meetupDataSource = dataSource as? MeetupDataSource, let urlString = meetupDataSource.meetup.meetupUrl {
             title = meetupDataSource.meetup.name

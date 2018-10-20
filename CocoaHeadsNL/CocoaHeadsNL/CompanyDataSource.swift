@@ -66,7 +66,7 @@ class CompanyDataSource: DetailDataSource {
     }
 
     func fetchAffiliateLinks() {
-        if company.hasApps {
+        if company.affiliateLinks?.count ?? 0 > 0 {
             fetchLinks.fetchLinksForCompany(company) {
                 self.tableView.reloadData()
             }

@@ -10,12 +10,15 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
+import BNRCoreDataStack
 
 class ContributorTableViewController: UITableViewController {
 
-    lazy var contributors = {
-        try! Realm().objects(Contributor.self).sorted(byKeyPath: "commit_count", ascending: false)
-    }()
+    var viewContext: NSManagedObjectContext!
+
+    lazy var contributors: [Contributor] = {
+        return try? Contributor.allInContext(viewContext, sortDescriptors: [NSSortDescriptor(key: "commit_count", ascending: false)])
+        }() ?? []
 
     //MARK: - View LifeCycle
 
@@ -100,7 +103,7 @@ class ContributorTableViewController: UITableViewController {
         let contributor = self.contributors[indexPath.row]
 
 
-        if let avatar_url = contributor.avatar_url, let url = URL(string: avatar_url) {
+        if let avatar_url = contributor.avatarUrl, let url = URL(string: avatar_url) {
             let task = fetchImageTask(url, forImageView: cell.imageView!)
             task.resume()
         } else {
@@ -191,7 +194,7 @@ class ContributorTableViewController: UITableViewController {
         var cloudContributors = [Contributor]()
 
         operation.recordFetchedBlock = { (record) in
-            let contributor = Contributor.contributor(forRecord: record)
+            let contributor = Contributor.contributor(forRecord: record, on: self.viewContext)
             cloudContributors.append(contributor)
         }
 
@@ -202,9 +205,7 @@ class ContributorTableViewController: UITableViewController {
                     self?.present(ac, animated: true, completion: nil)
                     return
                 }
-                self?.realm.beginWrite()
-                self?.realm.add(cloudContributors, update: true)
-                try! self?.realm.commitWrite()
+                self?.viewContext.saveContext()
             }
         }
 

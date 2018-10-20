@@ -10,12 +10,16 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
+import BNRCoreDataStack
 
 class JobsViewController: UICollectionViewController {
 
-    lazy var jobsArray = {
-        try! Realm().objects(Job.self).sorted(byKeyPath: "date", ascending: false)
-    }()
+    var viewContext: NSManagedObjectContext!
+
+    lazy var jobsArray: [Job] = {
+    return try? Job.allInContext(viewContext, sortDescriptors: [NSSortDescriptor(key: "date", ascending: false)])
+    }() ?? []
+
 
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
 
@@ -222,7 +226,7 @@ class JobsViewController: UICollectionViewController {
         var jobs = [Job]()
 
         operation.recordFetchedBlock = { (record) in
-            let job = Job.job(forRecord: record)
+            let job = Job.job(forRecord: record, on: self.viewContext)
             let _ = job.logoImage
             jobs.append(job)
         }

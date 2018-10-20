@@ -10,12 +10,15 @@ import Foundation
 import UIKit
 import CloudKit
 import Crashlytics
+import BNRCoreDataStack
 
 class LocatedCompaniesViewController: UITableViewController {
 
-//    lazy var companiesArray = {
-//        try! Realm().objects(Company.self).sorted(byKeyPath: "name")
-//    }()
+    var viewContext: NSManagedObjectContext!
+
+    lazy var companiesArray: [Company] = {
+        return try? Company.allInContext(viewContext, sortDescriptors: [NSSortDescriptor(key: "name", ascending: true)])
+    }() ?? []
 
     var placesArray: [String] {
         get {
@@ -182,7 +185,7 @@ class LocatedCompaniesViewController: UITableViewController {
         var companies = [Company]()
         
         operation.recordFetchedBlock = { (record) in
-            let company = Company.company(forRecord: record)
+            let company = Company.company(forRecord: record, on: self.viewContext)
             
             companies.append(company)
         }
